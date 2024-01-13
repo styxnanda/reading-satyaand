@@ -1,0 +1,109 @@
+.pdfReaderContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px;
+
+	@media (max-width: 768px) {
+		// Adjustments for mobile view
+		padding: 10px;
+	}
+
+	.pdfDocument {
+		box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+		margin-bottom: 20px;
+		display: flex;
+		justify-content: center;
+		position: relative;
+
+		&::after {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 50%;
+			transform: translateX(-50%);
+			height: 100%;
+			width: 2px;
+			background-color: #333;
+			z-index: 1;
+		}
+
+		&.lastPageSingle::after {
+			display: none; // Hide the divider for the last single page
+		}
+
+		.react-pdf__Page {
+			margin: 0 10px;
+			position: relative;
+			z-index: 2;
+
+			@media (max-width: 768px) {
+				margin: 0; // Adjust margin for mobile
+			}
+		}
+
+		@media (max-width: 768px) {
+			flex-direction: column; // Stack pages vertically on mobile
+
+			&::after {
+				display: none; // Hide divider on mobile
+			}
+		}
+	}
+
+	.navigation {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 10px;
+
+		select {
+			padding: 8px;
+			margin-right: 5px;
+			margin-left: 5px;
+			border-radius: 4px;
+			border: 1px solid #ccc;
+		}
+		button {
+			padding: 10px 15px;
+			margin: 0 5px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s;
+
+			&:disabled {
+				background-color: #ccc;
+				color: #1a1a1a;
+				cursor: default;
+			}
+
+			&:not(:disabled):hover {
+				background-color: #0056b3;
+			}
+		}
+
+		@media (max-width: 768px) {
+			button {
+				display: none; // Hide buttons on smaller screens
+			}
+
+			// Adjust chapter and page selectors for mobile view
+			select {
+				width: 100%; // Full-width selectors
+				margin: 5px 0; // Adjust margin for mobile
+			}
+		}
+	}
+
+	.pageInfo {
+		font-size: 16px;
+		color: #fefefe;
+
+		@media (max-width: 768px) {
+			// Optional: Adjust font size for mobile view
+			font-size: 14px;
+		}
+	}
+}
