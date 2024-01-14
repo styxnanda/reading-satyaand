@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { pdfjs } from "react-pdf";
 import { Document, Page } from "react-pdf";
 import styles from "./PDFReader.module.scss";
+import "react-pdf/dist/Page/TextLayer.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -23,10 +24,15 @@ const PDFReader = ({ pdfPath }) => {
 		setNumPages(numPages);
 	};
 
+	const isTextSelected = () => {
+		const selection = window.getSelection();
+		return selection && selection.toString().length > 0;
+	};
+
 	const handlePageChange = (event) => {
 		let selectedPage = parseInt(event.target.value, 10);
 
-		if (selectedPage % 2 === 0) {
+		if (!isMobileDevice() && selectedPage % 2 === 0) {
 			selectedPage = Math.max(selectedPage - 1, 1);
 		}
 
@@ -66,7 +72,7 @@ const PDFReader = ({ pdfPath }) => {
 		const increment = isMobileDevice() ? 1 : 2;
 		let nextPage = pageNumber + increment;
 		nextPage = Math.min(nextPage, numPages);
-		console.log(increment);
+		// console.log(increment);
 		setPageNumber(nextPage);
 	};
 
@@ -74,11 +80,12 @@ const PDFReader = ({ pdfPath }) => {
 		const decrement = isMobileDevice() ? 1 : 2;
 		let prevPage = pageNumber - decrement;
 		prevPage = Math.max(prevPage, 1);
-		console.log(decrement);
+		// console.log(decrement);
 		setPageNumber(prevPage);
 	};
 
 	const handlePageClick = (e) => {
+		if (isTextSelected()) return;
 		// Get the rectangle of the PDF container
 		const rect = e.currentTarget.getBoundingClientRect();
 
@@ -111,13 +118,13 @@ const PDFReader = ({ pdfPath }) => {
 				<Page
 					pageNumber={pageNumber}
 					renderAnnotationLayer={false}
-					renderTextLayer={false}
+					renderTextLayer={true}
 				/>
 				{!isMobileDevice() && pageNumber < numPages && (
 					<Page
 						pageNumber={pageNumber + 1}
 						renderAnnotationLayer={false}
-						renderTextLayer={false}
+						renderTextLayer={true}
 					/>
 				)}
 			</Document>
@@ -139,17 +146,35 @@ const PDFReader = ({ pdfPath }) => {
 
 				<select
 					onChange={handlePageChange}
-					value={getCurrentPairStartPage()}
+					value={
+						isMobileDevice()
+							? pageNumber
+							: getCurrentPairStartPage()
+					}
 				>
-					{Array.from({ length: Math.ceil(numPages / 2) }, (_, i) => {
-						const pageStart = 2 * i + 1;
-						const pageEnd = Math.min(pageStart + 1, numPages);
-						return (
-							<option key={pageStart} value={pageStart}>
-								Page {pageStart} / {pageEnd}
-							</option>
-						);
-					})}
+					{Array.from(
+						{
+							length: isMobileDevice()
+								? numPages
+								: Math.ceil(numPages / 2),
+						},
+						(_, i) => {
+							const pageStart = isMobileDevice()
+								? i + 1
+								: 2 * i + 1;
+							const pageEnd = isMobileDevice()
+								? pageStart
+								: Math.min(pageStart + 1, numPages);
+
+							return (
+								<option key={pageStart} value={pageStart}>
+									{isMobileDevice()
+										? `Page ${pageStart}`
+										: `Pages ${pageStart} - ${pageEnd}`}
+								</option>
+							);
+						}
+					)}
 				</select>
 				<button
 					onClick={goToNextPage}
